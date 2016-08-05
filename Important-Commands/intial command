@@ -1,0 +1,32 @@
+Format the hadoop name :
+
+hadoop namenode -format
+
+Starting the Hadoop:
+
+start-all.sh(start-dfs.sh and start-yarn.sh)
+
+starting history node:
+
+mr-jobhistory-daemon.sh start historyserver
+
+Checking the Status:
+
+jps
+
+You can also check with netstat if Hadoop is listening on the configured ports:
+
+sudo netstat -plten | grep java
+
+Stopping your single-node cluster:
+
+stop-all.sh
+
+
+
+Hadoop Web Interfaces:
+
+http://localhost:50070/ – web UI of the NameNode daemon
+http://localhost:50030/ – web UI of the JobTracker daemon
+http://localhost:50060/ – web UI of the TaskTracker daemon
+
