@@ -1,0 +1,39 @@
+Different parameter and their explanation:
+
+    -------------------------------------------------------
+
+    SET hive.execution.engine=tez; 
+
+    //Enabling Tez for Hive Queries
+
+    SET tez.queue.name=etl; 
+
+    // tez.queue.name property to specify which queue will be used for Tez jobs
+
+    // Capacity Scheduler is the default scheduler in HDP
+
+    //If no queues are configured, the default queue is used, which means that 100% of the cluster capacity is used to run Tez jobs
+
+    SET hive.auto.convert.join=false;
+
+    //CDH5 and above, default value for Hive.auto.convert.join is true.
+
+    If you are dealing with huge data, suggest you to set this to false to avoid memory issues at run time.
+
+    SET hive.exec.dynamic.partition = true;
+
+    SET hive.exec.dynamic.partition.mode = nonstrict;
+
+    //both are used together to make dynamic parition if you not aware of partition before loading the data
+
+    SET mapreduce.job.queuename=etl
+
+    // Queue to which a job is submitted
+
+    SET mapreduce.task.io.sort.mb=1535
+
+    //The total amount of buffer memory to use while sorting files, in megabytes. By default, gives each merge stream 1MB, which should minimize seeks
+
+    SET mapred.reduce.tasks=100;
+
+    // The default number of reduce tasks per job
