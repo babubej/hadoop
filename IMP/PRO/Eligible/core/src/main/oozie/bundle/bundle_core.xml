@@ -1,0 +1,60 @@
+<bundle-app name='ACE-CORE' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='uri:oozie:bundle:0.2'>
+    <parameters>
+        <property><name>coordAppPath</name></property>
+        <property><name>start</name></property>
+        <property><name>end</name></property>
+    </parameters>
+    <controls>
+        <kick-off-time>${bundleKickOffTime}</kick-off-time>
+    </controls>
+   <coordinator name='coord_rp_fact'>
+        <app-path>${coordAppPath}/coord_rp_fact.xml</app-path>
+        <configuration>
+            <property><name>startTime</name><value>${start}</value></property>
+            <property><name>endTime</name><value>${end}</value></property>
+            <property><name>feedName</name><value>rp_fact</value></property>
+            <property><name>splitSize</name><value>${splitSize}</value></property>
+            <property><name>execType</name><value>${execType}</value></property>
+         </configuration>
+    </coordinator>
+    <coordinator name='coord_rpl_fact'>
+        <app-path>${coordAppPath}/coord_rpl_fact.xml</app-path>
+        <configuration>
+            <property><name>startTime</name><value>${start}</value></property>
+            <property><name>endTime</name><value>${end}</value></property>
+            <property><name>feedName</name><value>rpl_fact</value></property>
+            <property><name>splitSize</name><value>${splitSize}</value></property>
+            <property><name>execType</name><value>${execType}</value></property>
+         </configuration>
+    </coordinator>
+    <coordinator name='coord_item_location_combined_fact'>
+        <app-path>${coordAppPath}/coord_item_loc_combined_fact.xml</app-path>
+        <configuration>
+            <property><name>startTime</name><value>${start}</value></property>
+            <property><name>endTime</name><value>${end}</value></property>
+            <property><name>feedName</name><value>item_loc_combined_fact</value></property>
+            <property><name>splitSize</name><value>${splitSize}</value></property>
+            <property><name>execType</name><value>${execType}</value></property>
+         </configuration>
+    </coordinator>
+    <coordinator name='coord_rp_eligibility'>
+        <app-path>${coordAppPath}/coord_rp_eligibility.xml</app-path>
+        <configuration>
+            <property><name>startTime</name><value>${start}</value></property>
+            <property><name>endTime</name><value>${end}</value></property>
+            <property><name>feedName</name><value>rp_eligibility</value></property>
+            <property><name>splitSize</name><value>${splitSize}</value></property>
+            <property><name>execType</name><value>${execType}</value></property>
+         </configuration>
+    </coordinator>
+    <coordinator name='coord_rpl_eligibility'>
+        <app-path>${coordAppPath}/coord_rpl_eligibility.xml</app-path>
+        <configuration>
+            <property><name>startTime</name><value>${start}</value></property>
+            <property><name>endTime</name><value>${end}</value></property>
+            <property><name>feedName</name><value>rpl_eligibility</value></property>
+            <property><name>splitSize</name><value>${splitSize}</value></property>
+            <property><name>execType</name><value>${execType}</value></property>
+         </configuration>
+    </coordinator>
+</bundle-app>

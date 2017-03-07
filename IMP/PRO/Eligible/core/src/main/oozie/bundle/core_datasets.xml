@@ -1,0 +1,47 @@
+<datasets>
+    <dataset name="data_air_sqoop_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/sqoop/air/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_rp_extractor_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/extractor/rp/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_rpl_extractor_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/extractor/rpl/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_promo_extractor_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/extractor/promo/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_prism_extractor_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/extractor/prism/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_sbt_extractor_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/extractor/sbt/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_salesrestricted_extractor_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/extractor/sales_restricted/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_location_box_size_extractor_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/extractor/location_box_size/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_location_detail_extractor_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/extractor/location_detail/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_dsd_sqoop_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/sqoop/dsd/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_rp_fact_core_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/core/rp_fact/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_rpl_fact_core_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/core/rpl_fact/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_item_loc_combined_fact_core_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/core/item_loc_combined_fact/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_rp_eligibility_core_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/core/eligibility_rp/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+    <dataset name="data_rpl_eligibility_core_daily" frequency="${coord:days(1)}" initial-instance="2009-01-01T00:00Z" timezone="UTC">
+        <uri-template>${nameNode}/${internalDir}/core/eligibility_rpl/dt=${YEAR}-${MONTH}-${DAY}/</uri-template>
+    </dataset>
+</datasets>

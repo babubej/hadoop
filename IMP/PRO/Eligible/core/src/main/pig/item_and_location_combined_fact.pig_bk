@@ -1,0 +1,150 @@
+SET mapred.job.queue.name '$QUEUE_NAME';
+SET mapred.job.name '$JOB_NAME';
+SET mapred.max.split.size '$MAX_SPLIT_SIZE';
+SET mapred.compress.map.output true;
+SET mapred.map.output.compression.codec org.apache.hadoop.io.compress.SnappyCodec;
+
+DEFINE CHECK_MARKETS com.target.ace.core_udfs.CheckValueInDelimitedString('|');
+
+input_rp_fact = LOAD '$INPUT_RP_FACT_PATH' USING PigStorage(',');
+
+input_rpl_fact = LOAD '$INPUT_RPL_FACT_PATH' USING PigStorage(',');
+
+/*
+ *  Item present in RP will have a record in RPL
+*/
+join_rp_loc_combined_fact = JOIN input_rp_fact BY (departmentId, classId, itemId) LEFT OUTER, input_rpl_fact BY (departmentId, classId, itemId) PARALLEL 500;
+
+project_rp_loc_combined_fact = FOREACH join_rp_loc_combined_fact GENERATE
+    input_rp_fact::departmentId AS departmentId:int,
+    input_rp_fact::classId AS classId:int,
+    input_rp_fact::itemId AS itemId:int,
+    input_rpl_fact::locationId AS locationId:int,
+    input_rpl_fact::ine_air AS ine_air:int,
+    input_rpl_fact::ine_dsd  AS ine_dsd:int,
+    input_rpl_fact::statusCode AS statusCode:int,
+    input_rpl_fact::isDeleted AS isDeleted:boolean,
+    input_rpl_fact::loc_isShip AS loc_isShip:boolean,
+    input_rpl_fact::loc_isRush AS loc_isRush:boolean,
+    input_rpl_fact::loc_isHold AS loc_isHold:boolean,
+    input_rpl_fact::loc_isShipToStore AS loc_isShipToStore:boolean,
+    input_rpl_fact::loc_markets AS loc_markets:chararray,
+    input_rpl_fact::box_max AS box_max:float,
+    input_rpl_fact::box_min AS box_min:float,
+    input_rpl_fact::box_med AS box_med:float,
+    input_rp_fact::tcin AS tcin:int,
+    input_rp_fact::isSoldInStore AS isSoldInStore:chararray,
+    input_rp_fact::isSoldOnline AS isSoldOnline:chararray,
+    input_rp_fact::priceTypeCode AS priceTypeCode:chararray,
+    input_rp_fact::priceTypeStartDate AS priceTypeStartDate:chararray,
+    input_rp_fact::priceTypeEndDate AS priceTypeEndDate:chararray,
+    input_rp_fact::isSignatureRequired AS isSignatureRequired:chararray,
+    input_rp_fact::returnMethodCode AS returnMethodCode:int,
+    input_rp_fact::kitItem AS kitItem:int,
+    input_rp_fact::mozaratId AS mozaratId:int,
+    input_rp_fact::itemStatusCode AS itemStatusCode:chararray,
+    input_rp_fact::shipCarrierCode AS shipCarrierCode:chararray,
+    input_rp_fact::shipCarrierDesc AS shipCarrierDesc:chararray,
+    input_rp_fact::primeVendorId AS primeVendorId:int,
+    input_rp_fact::primaryFulfillLocationType AS primaryFulfillLocationType:chararray,
+    input_rp_fact::ine_dvs_product AS ine_dvs_product:int,
+    input_rp_fact::elig_prism_kit AS elig_prism_kit:int,
+    input_rp_fact::obselete AS obselete:int,
+    input_rp_fact::elig_prism_statuscode AS elig_prism_statuscode:int,
+    input_rp_fact::elig_prism_pricetype AS elig_prism_pricetype:int,
+    input_rp_fact::web_only AS web_only:int,
+    input_rp_fact::store_only AS store_only:int,
+    input_rp_fact::prism_sign AS prism_sign:int,
+    input_rp_fact::elig_prism_ltl AS elig_prism_ltl:int,
+    input_rp_fact::elig_prism_return_method AS elig_prism_return_method:int,
+    input_rp_fact::multi_tcins AS multi_tcins:int,
+    input_rp_fact::entertainmentsegmentationstartingsalesdate AS entertainment_segmentation_starting_salesdate:chararray,
+    input_rp_fact::prepaidownercode AS prepaidownercode:chararray,
+    input_rp_fact::isflammable AS isflammable:boolean,
+    input_rp_fact::ishazardousmaterial AS ishazardousmaterial:boolean,
+    input_rp_fact::isHold AS isHold:boolean,
+    input_rp_fact::isShip AS isShip:boolean,
+    input_rp_fact::isRush AS isRush:boolean,
+    input_rp_fact::isShipToStore AS isShipToStore:boolean,
+    input_rp_fact::isHoldMarkets AS isHoldMarkets,
+    input_rp_fact::isShipMarkets AS isShipMarkets,
+    input_rp_fact::isRushMarkets AS isRushMarkets,
+    input_rp_fact::isShipToStoreMarkets AS isShipToStoreMarkets,
+    input_rp_fact::isHoldExcluded AS isHoldExcluded:boolean,
+    input_rp_fact::isShipExcluded AS isShipExcluded:boolean,
+    input_rp_fact::isRushExcluded AS isRushExcluded:boolean,
+    input_rp_fact::isShipToStoreExcluded AS isShipToStoreExcluded:boolean,
+    input_rp_fact::ine_future_street_date AS ine_future_street_date:int,
+    input_rp_fact::ine_prepaid_item AS ine_prepaid_item:int,
+    input_rp_fact::ine_hazardous_flammable AS ine_hazardous_flammable:int,
+    input_rp_fact::offer_type_code AS offer_type_code:chararray,
+    input_rp_fact::promo_start_date AS promo_start_date:chararray,
+    input_rp_fact::promo_end_date AS promo_end_date:chararray,
+    input_rp_fact::ine_promo AS ine_promo:long,
+    input_rp_fact::ine_sbt AS ine_sbt:int,
+    input_rp_fact::ine_sales_restricted AS ine_sales_restricted:int;
+    (input_rp_fact::current_isShip IS NOT NULL && input_rp_fact::current_isShip == TRUE ? 1 : 0) AS current_item_isShip:int;
+    (input_rp_fact::current_isRush IS NOT NULL && input_rp_fact::current_isRush == TRUE ? 1 : 0) AS current_item_isRush:int;
+    (input_rp_fact::current_isHold IS NOT NULL && input_rp_fact::current_isHold == TRUE ? 1 : 0)AS current_item_isHold:int;
+    (input_rp_fact::current_isShipToStore IS NOT NULL && input_rp_fact::current_isShipToStore == TRUE ? 1 :0) AS current_item_isShipToStore:int;
+
+/**
+* location level FF options and item level FF options are TRUE ? then check markets
+*    - itemLevelMarkets is NULL/Empty value means ALL MARKETS enable it to all Location default.
+*    - if itemLevelMarkets is NOT NULL/Empty 
+*        -> check if Location level market  matches the itemMarkets values ? TRUE : FALSE
+*
+* default_ineligibility:
+*     if an item not present in DSD and not statuscode 'D', and not present in AIR then it is Ineligibile.
+*         Reason:
+*         -- DSD items will be removed from AIR File
+*         -- 'D'-coded items will be removed from AIR File
+*/
+location_markets_eligibility = FOREACH project_rp_loc_combined_fact {
+    itemLocWithMarkets_isHold = (current_isHold == TRUE AND loc_isHold == TRUE AND 
+        ((isHoldMarkets IS NULL OR SIZE(TRIM(isHoldMarkets)) == 0) OR CHECK_MARKETS(isHoldMarkets, loc_markets)) ? 
+        TRUE : FALSE
+    );
+    itemLocWithMarkets_isShip = (current_isShip == TRUE AND loc_isShip == TRUE AND 
+      ((isShipMarkets IS NULL OR SIZE(TRIM(isShipMarkets)) == 0) OR CHECK_MARKETS(isShipMarkets, loc_markets)) ?
+      TRUE : FALSE
+    );
+    itemLocWithMarkets_isRush = (current_isRush == TRUE AND loc_isRush == TRUE AND 
+      ((isRushMarkets IS NULL OR SIZE(TRIM(isRushMarkets)) == 0) OR CHECK_MARKETS(isRushMarkets, loc_markets)) ? 
+      TRUE : FALSE
+    );
+    itemLocWithMarkets_isShipToStore = (current_isShipToStore == TRUE AND loc_isShipToStore == TRUE AND 
+        ((isShipToStoreMarkets IS NULL OR SIZE(TRIM(isShipToStoreMarkets)) == 0) OR CHECK_MARKETS(isShipToStoreMarkets, loc_markets)) ? 
+      TRUE : FALSE
+    );
+    default_ineligibility = ((ine_air == 1 AND ine_dsd == 1 AND statusCode != 'D') OR ine_status_code == 1) ? TRUE : FALSE); 
+    item_loc_isHold = ((itemLocWithMarkets_isHold == TRUE OR default_ineligibility == FALSE) ? TRUE : FALSE); 
+    item_loc_isShip = ((itemLocWithMarkets_isShip == TRUE OR default_ineligibility == FALSE) ? TRUE : FALSE); 
+    item_loc_isRush = ((itemLocWithMarkets_isRush == TRUE OR default_ineligibility == FALSE) ? TRUE : FALSE); 
+    item_loc_isShipToStore = ((itemLocWithMarkets_isShipToStore == TRUE OR default_ineligibility == FALSE) ? TRUE : FALSE); 
+    GENERATE
+    ..current_item_isShipToStore,
+    itemLocWithMarkets_isHold AS itemLocWithMarkets_isHold:boolean,
+    itemLocWithMarkets_isShip AS itemLocWithMarkets_isShip:boolean,
+    itemLocWithMarkets_isRush AS itemLocWithMarkets_isRush:boolean,
+    itemLocWithMarkets_isShipToStore AS itemLocWithMarkets_isShipToStore:boolean,
+    (item_loc_isHold IS NOT NULL && item_loc_isHold == TRUE ? current_item_isHold : 0) AS  item_isHold:int,
+    (item_loc_isShip IS NOT NULL && item_loc_isShip == TRUE ? current_item_isShip : 0) AS  item_isShip:int,
+    (item_loc_isRush IS NOT NULL && item_loc_isRush == TRUE ? current_item_isRush : 0) AS  item_isRush:int,
+    (item_loc_isShipToStore IS NOT NULL && item_loc_isShipToStore == TRUE ? current_item_isShipToStore : 0) AS item_isShipToStore:int,
+    item_loc_isHold AS item_loc_isHold:boolean,
+    item_loc_isShip AS item_loc_isShip:boolean,
+    item_loc_isRush AS item_loc_isRush:boolean,
+    item_loc_isShipToStore AS item_loc_isShipToStore:boolean;
+ 
+grouped_eligibility = GROUP location_markets_eligibility BY (departmentId, classId, itemId) PARALLEL 100;
+
+rp_one_loc = FOREACH grouped_eligibility GENERATE
+      group AS (departmentId, classId, itemId),
+      (SUM(item_isHold) > 0 ? TRUE : FALSE) AS current_isHold:boolean, 
+      (SUM(item_isShip) > 0 ? TRUE : FALSE) AS current_isShip:boolean, 
+      (SUM(item_isRush) > 0 ? TRUE : FALSE) AS current_isRush:boolean, 
+      (SUM(item_isShipToStore) > 0 ? TRUE : FALSE) AS current_isShipToStore:boolean; 
+ 
+--Store to hive external path with partition 
+STORE project_rp_loc_combined_fact INTO '$OUTPUT_PATH' USING PigStorage(',', '-schema');

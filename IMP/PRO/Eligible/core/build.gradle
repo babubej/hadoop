@@ -1,0 +1,148 @@
+import org.apache.tools.ant.filters.*
+import org.apache.tools.ant.filters.ExpandProperties
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+
+group = 'com.hortonworks.target'
+version = '1.1'
+
+description = """ace-core"""
+
+def tag = "${major}_${minor}_${build}"
+
+def workflowJars = [
+    'ace-core-1.1.jar',
+];
+//To always default to prod enable this.
+//def deploy_env = 'prod'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+    }
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+     //mavenCentral()
+     maven { url "http://binrepo.target.com/artifactory/remote-repos" }
+     maven { url "http://binrepo.target.com/artifactory/libs-release" }
+     maven { url "http://binrepo.target.com/artifactory/bigRED" }
+     maven { url "http://binrepo.target.com/artifactory/libs-snapshot" }
+     maven { url "http://repo.hortonworks.com/content/repositories/releases/" }
+     maven { url "http://repo.spring.io/libs-release" }
+}
+dependencies {
+    compile group: 'org.apache.hadoop', name: 'hadoop-mapreduce-client-common', version: '2.2.0'
+    compile group: 'org.apache.hadoop', name: 'hadoop-common', version: '2.2.0'
+    compile group: 'org.apache.hadoop', name: 'hadoop-mapreduce-client-core', version: '2.2.0'
+    compile group: 'org.apache.mrunit', name: 'mrunit', version:'1.1.0', classifier:'hadoop2'
+//    compile group: 'org.apache.hadoop', name: 'hadoop-mapreduce-client-core', version:'2.4.0.2.1.2.0-402'
+//    compile group: 'org.apache.hadoop', name: 'hadoop-common', version:'2.4.0.2.1.2.0-402'
+//    compile group: 'org.apache.hadoop', name: 'hadoop-core', version:'1.2.0.23'
+    compile group: 'org.apache.pig', name: 'pigunit', version: '0.14.0'
+    compile group: 'org.apache.pig', name: 'piggybank', version: '0.14.0'
+    compile group: 'org.apache.pig', name: 'pig', version: '0.14.0', classifier: 'h2' 
+    compile group: 'junit', name: 'junit', version: '4.11'
+    compile group: 'joda-time', name: 'joda-time', version: '2.7'
+    compile group: 'org.apache.hive', name: 'hive-exec', version:'0.14.0.2.2.4.0-2633'
+    compile group: 'org.apache.hive', name: 'hive-serde', version:'0.14.0.2.2.4.0-2633'
+    compile group: 'junit', name: 'junit', version:'4.8.1'
+    compile group: 'org.mockito', name: 'mockito-all', version:'1.9.5'
+    compile group: 'org.apache.hadoop', name: 'hadoop-mapreduce', version:'2.4.0'  
+}
+
+
+
+task copyDependencyJars(type: Copy) {
+    from configurations.compile
+    into 'build/libs/'
+}
+
+project.tasks.test.dependsOn(copyDependencyJars)
+
+task filter(type: Copy) {
+  def bundle_prop= "src/assembly/conf/"+deploy_env+".properties"
+  from 'src/main/oozie/bundle/bundle_core.properties'
+  into "build/core_$tag/bundle/"
+  Properties deploymentProp = new Properties()
+  deploymentProp.load(new FileInputStream(bundle_prop))
+  filter(ReplaceTokens, tokens:[BUILD_TAG: project.TAG])
+  filter(ReplaceTokens, tokens: deploymentProp)
+}
+
+task coreTar(type: Tar, dependsOn: [filter, compileJava, jar, copyDependencyJars] ) {
+  extension = 'tar.gz'
+  baseName = "${project.name}_$tag"
+  version = null
+  compression = Compression.GZIP
+
+  //Copy only the XML and exclude any properties file
+  into("core_$tag/workflow/") {
+    from ("src/main/oozie/workflow/")
+    exclude('**.properties')
+    include('**.xml')
+  }
+  into("core_$tag/coordinator/") {
+    from ("src/main/oozie/coordinator/")
+    exclude('**.properties')
+    include('**.xml')
+  }
+  into("core_$tag/bundle/") {
+    from ("src/main/oozie/bundle/")
+    exclude('**.properties')
+    include('**.xml')
+  }
+  //Copy all the scripts
+  into("core_$tag/workflow/hql") {
+    from("src/main/hql")
+  }
+  into("core_$tag/workflow/pig") {
+    from("src/main/pig")
+  }
+
+  into("core_$tag/workflow/conf/") {
+    from "src/main/conf/$deploy_env"
+  }
+
+  into("core_$tag/workflow/conf/") {
+    from "src/main/conf/pig/"
+  }
+
+  into("core_$tag/workflow/conf/lookup_data/") {
+    from "src/main/resources/lookup_data"
+  }
+
+  into("core_$tag/workflow/scripts") {
+    from ("src/main/scripts/")
+    fileMode = 0755
+  }
+  //Copy the Environment based Filtered Property File
+  into("core_$tag/bundle/") {
+    from ("build/core_$tag/bundle/bundle_core.properties")
+  }
+
+  //Copy the Complied Jar for the current core 
+  into("core_$tag/workflow/lib/") {
+    from("build/libs/")
+    include { it.name in workflowJars }
+  }
+
+  /*
+  //Copy the Complied Jar for the current core
+  into("core_$tag/workflow/lib/") {
+    from("build/libs/")
+  }
+  */
+}
+
+artifacts {
+    archives coreTar
+}
+

@@ -1,0 +1,77 @@
+<coordinator-app name="coord_${feedName}" frequency="${coord:days(1)}"
+                 start="${start}" end="${end}" timezone="America/Chicago"
+                 xmlns="uri:oozie:coordinator:0.2">
+    <controls>
+        <timeout>300</timeout>
+        <concurrency>10</concurrency>
+        <execution>LAST_ONLY</execution>
+    </controls>
+    <datasets>
+        <include>${bundleAppPath}/core_datasets.xml</include>
+    </datasets>
+    <input-events>
+        <data-in name="coordInputRp" dataset="data_rp_extractor_daily">
+            <instance>${coord:current(0)}</instance>
+        </data-in>
+        <data-in name="coordInputSbt" dataset="data_sbt_extractor_daily">
+            <instance>${coord:current(0)}</instance>
+        </data-in>
+        <data-in name="coordInputPromo" dataset="data_promo_extractor_daily">
+            <instance>${coord:current(0)}</instance>
+        </data-in>
+        <data-in name="coordInputPrism" dataset="data_prism_extractor_daily">
+            <instance>${coord:current(0)}</instance>
+        </data-in>
+        <data-in name="coordInputSalesRestricted" dataset="data_salesrestricted_extractor_daily">
+            <instance>${coord:current(0)}</instance>
+        </data-in>
+    </input-events> 
+    <output-events>
+        <data-out name="coordOutput" dataset="data_${feedName}_core_daily">
+            <instance>${coord:current(0)}</instance>
+        </data-out>
+    </output-events> 
+    <action>
+        <workflow>
+            <app-path>${wfAppPath}/wf_rp_fact.xml</app-path>
+            <configuration>
+                <property>
+                    <name>dateStamp</name>
+                    <value>${coord:formatTime(coord:nominalTime(),'yyyy-MM-dd')}</value>
+                </property>
+                <property>
+                    <name>nextDayDateStamp</name>
+                    <value>${coord:formatTime(coord:dateOffset(coord:nominalTime(), 1, 'DAY'),'yyyy-MM-dd')}</value>
+                </property>
+                <property>
+                    <name>prevDayDateStamp</name>
+                    <value>${coord:formatTime(coord:dateOffset(coord:nominalTime(), -1, 'DAY'),'yyyy-MM-dd')}</value>
+                </property>
+                <property>
+                    <name>wfInputRp</name>
+                    <value>${coord:dataIn('coordInputRp')}</value>
+                </property>
+                <property>
+                    <name>wfInputSbt</name>
+                    <value>${coord:dataIn('coordInputSbt')}</value>
+                </property>
+                <property>
+                    <name>wfInputPromo</name>
+                    <value>${coord:dataIn('coordInputPromo')}</value>
+                </property>
+                <property>
+                    <name>wfInputPrism</name>
+                    <value>${coord:dataIn('coordInputPrism')}</value>
+                </property>
+                <property>
+                    <name>wfInputSalesRestricted</name>
+                    <value>${coord:dataIn('coordInputSalesRestricted')}</value>
+                </property>
+                <property>
+                    <name>wfOutput</name>
+                    <value>${coord:dataOut('coordOutput')}</value>
+                </property>
+            </configuration>
+        </workflow>
+    </action>
+</coordinator-app>
