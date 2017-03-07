@@ -1,0 +1,31 @@
+    Hive parameters
+
+    -----------------
+
+    While creating the table 
+
+    ---------------------------
+
+    SET hive.execution.engine=tez;
+
+    SET tez.queue.name=etl;
+
+    Running the query
+
+    -----------------------
+
+    SET hive.auto.convert.join=false;
+
+    SET hive.exec.dynamic.partition = true;
+
+    SET hive.exec.dynamic.partition.mode = nonstrict;
+
+    SET hive.execution.engine=tez;
+
+    SET mapreduce.job.queuename=etl; //not man*
+
+    SET tez.queue.name=etl;
+
+    SET mapreduce.task.io.sort.mb=1535;
+
+    SET mapred.reduce.tasks=100;
